@@ -50,3 +50,4 @@ google-services.json
 # Android Profiling
 *.hprof
 >>>>>>> 428abb8b68b52770bc354b4b11e2c0382c103f19
+app/release/
