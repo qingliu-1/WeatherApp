@@ -27,13 +27,26 @@ import java.util.Optional;
 
 /**
  * 天气查询主页面
- * 功能:接收用户输入的城市名字，并调用天气API并展示天气信息
+ * 功能：接收用户输入的城市名，调用天气API并展示天气信息
+ * 设计思路：
+ * 1. UI层：使用EditText接收输入，Button触发查询，TextView展示结果
+ * 2. 网络层：通过NetUtil工具类发起HTTP请求，获取JSON数据
+ * 3. 逻辑层：使用Handler处理子线程返回的结果，更新UI
+ *
+ * @author 华士豪
+ * @date 2026-02-23
  */
-
 public class MainActivity extends AppCompatActivity {
+//    查询天气的Button按钮
     private Button btStart;
+//    输入城市名的编辑框
     private EditText etCity;
+//    用于展示天气的TextView
     private TextView tvWeather,tvWin,tvWinSpeed,tvTem,tvTemDay,tvTemNight;
+    /**
+     * 处理子线程返回的天气数据，更新UI
+     * 注意：Android不允许在子线程中直接更新UI，必须通过Handler切换到主线程
+     */
     private Handler handler = new Handler(Looper.myLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -41,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (msg.what == 0){
                 String message = (String) msg.obj;
+//              解析JSON并更新UI
                 parseJsonDataAndShow(message);
             }
         }
@@ -56,18 +70,21 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+//      初始化视图控件
         initView();
+//        设置查询按钮点击事件
         btStart.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
+//                获取城市名并去除空格
                 String city = etCity.getText().toString().trim();
-
+//                空值判断，防止无效请求
                 if (city.isEmpty()) {
                     Toast.makeText(MainActivity.this, "请输入要查询的城市！", Toast.LENGTH_SHORT).show();
                     return;
                 }
+//                开启子线程执行网络请求
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -106,7 +123,12 @@ public class MainActivity extends AppCompatActivity {
      *     "humidity":"27%" //湿度
      * }
      */
-    public void parseJsonDataAndShow(String jsonStr) {
+    /**
+     * 解析天气API返回的JSON数据，并更新UI
+     * @param jsonStr API返回的JSON字符串
+     */
+    private void parseJsonDataAndShow(String jsonStr) {
+        // 解析JSON并更新TextView的代码...
         try {
             JSONObject jsonObject = new JSONObject(jsonStr);
             String cityId = jsonObject.optString("cityid");
